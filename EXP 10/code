@@ -1,0 +1,87 @@
+import java.util.*;
+import java.io.*;
+
+public class Main {
+    static class PersistentSegTree {
+        int[] lc, rc, cnt;
+        int[] roots;
+        int nc = 1;
+        int n;
+
+        PersistentSegTree(int n, int maxNodes) {
+            this.n = n;
+            lc = new int[maxNodes];
+            rc = new int[maxNodes];
+            cnt = new int[maxNodes];
+            roots = new int[n + 1];
+        }
+
+        int update(int prev, int lo, int hi, int val) {
+            int node = nc++;
+            lc[node] = lc[prev]; rc[node] = rc[prev]; cnt[node] = cnt[prev] + 1;
+            if (lo == hi) return node;
+            int mid = (lo + hi) >>> 1;
+            if (val <= mid) lc[node] = update(lc[prev], lo, mid, val);
+            else            rc[node] = update(rc[prev], mid+1, hi, val);
+            return node;
+        }
+
+  
+        int query(int nr, int nl, int lo, int hi, int ql, int qr) {
+            if (ql > qr || nr == nl) return 0;
+            if (ql <= lo && hi <= qr) return cnt[nr] - cnt[nl];
+            int mid = (lo + hi) >>> 1;
+            int res = 0;
+            if (ql <= mid) res += query(lc[nr], lc[nl], lo, mid, ql, Math.min(qr, mid));
+            if (qr > mid)  res += query(rc[nr], rc[nl], mid+1, hi, Math.max(ql, mid+1), qr);
+            return res;
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int n = Integer.parseInt(st.nextToken());
+        int k = Integer.parseInt(st.nextToken());
+
+        int[] a = new int[n + 1];
+        st = new StringTokenizer(br.readLine());
+        for (int i = 1; i <= n; i++) a[i] = Integer.parseInt(st.nextToken());
+
+         int[] prev = new int[n + 1];
+        @SuppressWarnings("unchecked")
+        List<Integer>[] typePos = new List[100001];
+        for (int i = 0; i < 100001; i++) typePos[i] = new ArrayList<>();
+
+        for (int i = 1; i <= n; i++) {
+            int t = a[i];
+            List<Integer> tp = typePos[t];
+            int sz = tp.size();
+            prev[i] = (sz >= k) ? tp.get(sz - k) : 0;
+            tp.add(i);
+        }
+
+      PersistentSegTree pst = new PersistentSegTree(n, (n + 1) * 34 + 100);
+        for (int i = 1; i <= n; i++) {
+            pst.roots[i] = pst.update(pst.roots[i-1], 0, n, prev[i]);
+        }
+
+        int q = Integer.parseInt(br.readLine().trim());
+        StringBuilder sb = new StringBuilder();
+        int last = 0;
+
+        for (int i = 0; i < q; i++) {
+            st = new StringTokenizer(br.readLine());
+            int x = Integer.parseInt(st.nextToken());
+            int y = Integer.parseInt(st.nextToken());
+   
+            int l = ((x + last) % n) + 1;
+            int r = ((y + last) % n) + 1;
+            if (l > r) { int tmp = l; l = r; r = tmp; }
+
+            last = pst.query(pst.roots[r], pst.roots[l-1], 0, n, 0, l-1);
+            sb.append(last).append('\n');
+        }
+        System.out.print(sb);
+    }
+}
