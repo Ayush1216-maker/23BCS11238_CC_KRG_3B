@@ -1,0 +1,67 @@
+import java.util.*;
+
+public class Main {
+
+    static Scanner sc = new Scanner(System.in);
+
+    public static void main(String[] args) {
+
+        int n = sc.nextInt();
+
+        int[][] v = new int[n][2];
+        int sum = 0;
+
+        for (int i = 0; i < n; i++) {
+            v[i][0] = sc.nextInt(); 
+            v[i][1] = sc.nextInt(); 
+            sum += v[i][1];
+        }
+
+        int MAX_CAP = 10000;
+
+      
+        int[][] dp = new int[n + 1][MAX_CAP + 1];
+
+        for (int i = 0; i <= n; i++) {
+            Arrays.fill(dp[i], -1000000000);
+        }
+
+        dp[0][0] = 0;
+
+        for (int i = 0; i < n; i++) {
+
+            int a = v[i][0];
+            int b = v[i][1];
+
+            for (int k = n - 1; k >= 0; k--) {
+                for (int cap = MAX_CAP - a; cap >= 0; cap--) {
+
+                    if (dp[k][cap] >= 0) {
+                        dp[k + 1][cap + a] = Math.max(
+                            dp[k + 1][cap + a],
+                            dp[k][cap] + b
+                        );
+                    }
+                }
+            }
+        }
+
+     
+        for (int k = 1; k <= n; k++) {
+
+            double ans = 0;
+
+            for (int cap = 0; cap <= MAX_CAP; cap++) {
+
+                if (dp[k][cap] >= 0) {
+                    int val = Math.min(2 * cap, dp[k][cap] + sum);
+                    ans = Math.max(ans, val / 2.0);
+                }
+            }
+
+            System.out.print(String.format("%.15f", ans) + " ");
+        }
+
+        System.out.println();
+    }
+}
