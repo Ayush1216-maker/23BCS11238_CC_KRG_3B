@@ -1,0 +1,56 @@
+import java.util.*;
+
+public class Main {
+
+    static Scanner sc = new Scanner(System.in);
+
+    public static long checkTarget(int[] a, int n, long target) {
+
+        long n1 = 0; 
+        long n2 = 0; 
+
+        for (int i = 0; i < n; i++) {
+            long diff = target - a[i];
+            n2 += diff / 2;
+            n1 += diff % 2;
+        }
+
+     
+        if (n1 > n2) {
+            return n1 * 2 - 1;
+        }
+
+   
+        long diff = n2 - n1;
+
+        long days = n1 * 2 + (diff / 3) * 4;
+
+        if (diff % 3 == 0) return days;
+        if (diff % 3 == 1) return days + 2;
+
+        return days + 3;
+    }
+
+    public static void main(String[] args) {
+
+        int t = sc.nextInt();
+
+        while (t-- > 0) {
+
+            int n = sc.nextInt();
+            int[] a = new int[n];
+
+            long max = 0;
+
+            for (int i = 0; i < n; i++) {
+                a[i] = sc.nextInt();
+                max = Math.max(max, a[i]);
+            }
+
+            long ans1 = checkTarget(a, n, max);
+            long ans2 = checkTarget(a, n, max + 1);
+
+            System.out.println(Math.min(ans1, ans2));
+        }
+    }
+}
