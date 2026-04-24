@@ -1,0 +1,70 @@
+import java.util.*;
+  /**
+            1. traffic light is global
+                - if a departs before b, a will always arrive first
+                    - if a delays bc of red light, b will be delayed as well 
+                - carry the time forward
+                - round=curTime/change
+                    - if round is even, then it is green
+                        - nextTime=curTime+time
+                    - if round is odd, then it is red
+                        - wait
+                        - nextTime=curTime+2*time, (round+1)*change+time
+            2. the question is asking for second minimum time
+                - if A->...->B1->...->C, a second minumum time would be
+                    - A->...->B1->...->B2->...-->C
+                    - a node can be visited twice
+            3. use an timeArr to keep track of the 2nd minimum time for every node
+                - bfs into next only timeArr[i]<nextTime
+         */
+
+
+class Solution {
+    public int secondMinimum(int n, int[][] edges, int time, int change) {
+        
+   List<Integer>[] adj = new ArrayList[n + 1];
+        for (int i = 0; i <= n; i++) adj[i] = new ArrayList<>();
+        
+        for (int[] e : edges) {
+            adj[e[0]].add(e[1]);
+            adj[e[1]].add(e[0]);
+        }
+    
+        int[][] dist = new int[n + 1][2];
+        for (int[] row : dist) Arrays.fill(row, Integer.MAX_VALUE);
+      
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[0] - b[0]);
+        
+        pq.offer(new int[]{0, 1}); 
+        dist[1][0] = 0;
+      
+        while (!pq.isEmpty()) {
+            int[] curr = pq.poll();
+            int currTime = curr[0];
+            int node = curr[1];
+
+            for (int nei : adj[node]) {
+                int nextTime = currTime;
+                       if ((nextTime / change) % 2 == 1) {
+                    nextTime += change - (nextTime % change);
+                }
+
+           
+                nextTime += time;
+
+             
+                if (nextTime < dist[nei][0]) {
+                    dist[nei][0] = nextTime;
+                    pq.offer(new int[]{nextTime, nei});
+                }
+             
+                else if (nextTime > dist[nei][0] && nextTime < dist[nei][1]) {
+                    dist[nei][1] = nextTime;
+                    pq.offer(new int[]{nextTime, nei});
+                }
+            }
+        }
+
+        return dist[n][1];
+    }
+}
