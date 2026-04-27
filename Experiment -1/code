@@ -1,0 +1,50 @@
+import java.util.*;
+
+public class Main {
+    static List<String> tokens = new ArrayList<>();
+    static int idx = 0;
+    static StringBuilder result = new StringBuilder();
+
+    static boolean build() {
+        if (idx >= tokens.size()) return false;
+
+        String current = tokens.get(idx);
+
+        if (current.equals("int")) {
+            result.append("int");
+            idx++;
+            return true;
+        }
+
+        if (current.equals("pair")) {
+            result.append("pair<");
+            idx++;
+
+            if (!build()) return false;
+
+            result.append(",");
+
+            if (!build()) return false;
+
+            result.append(">");
+            return true;
+        }
+
+        return false;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        int n = sc.nextInt(); 
+        while (sc.hasNext()) {
+            tokens.add(sc.next());
+        }
+
+        if (build() && idx == tokens.size()) {
+            System.out.println(result.toString());
+        } else {
+            System.out.println("Error occurred");
+        }
+    }
+}
