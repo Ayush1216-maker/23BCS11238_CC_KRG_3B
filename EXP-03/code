@@ -1,0 +1,45 @@
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        int n = sc.nextInt();
+
+     
+        TreeMap<Long, Long> events = new TreeMap<>();
+
+        for (int i = 0; i < n; i++) {
+            long l = sc.nextLong();
+            long r = sc.nextLong();
+
+            events.put(l, events.getOrDefault(l, 0L) + 1);
+            events.put(r + 1, events.getOrDefault(r + 1, 0L) - 1);
+        }
+
+        long[] cnt = new long[n + 1];
+
+        long prev = -1;
+        long coverage = 0;
+
+        for (Map.Entry<Long, Long> entry : events.entrySet()) {
+            long x = entry.getKey();
+            long delta = entry.getValue();
+
+            if (prev != -1 && coverage > 0) {
+                long len = x - prev;
+                cnt[(int) coverage] += len;
+            }
+
+            coverage += delta;
+            prev = x;
+        }
+
+        for (int i = 1; i <= n; i++) {
+            System.out.print(cnt[i] + " ");
+        }
+        System.out.println();
+
+        sc.close();
+    }
+}
